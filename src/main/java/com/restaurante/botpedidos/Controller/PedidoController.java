@@ -1,156 +1,98 @@
 package com.restaurante.botpedidos.Controller;
 
-import com.restaurante.botpedidos.model.Pedido;
-import com.restaurante.botpedidos.model.Producto;
 import com.restaurante.botpedidos.Repository.PedidoRepository;
 import com.restaurante.botpedidos.Repository.ProductoRepository;
+import com.restaurante.botpedidos.model.Pedido;
+import com.restaurante.botpedidos.model.PedidoProducto;
+import com.restaurante.botpedidos.model.Producto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = "*") // Permitir CORS para el frontend
+@CrossOrigin(origins = "*")
 public class PedidoController {
 
     @Autowired
-    private PedidoRepository pedidoRepo;
+    private PedidoRepository pedidoRepository;
 
     @Autowired
-    private ProductoRepository productoRepo;
+    private ProductoRepository productoRepository;
 
+    // Listar todos los pedidos
     @GetMapping
-    public List<Pedido> obtenerTodosLosPedidos() {
-        return pedidoRepo.findAll();
+    public List<Pedido> getAllPedidos() {
+        return pedidoRepository.findAllPedidosDistinct();
     }
 
-    // Endpoint para obtener solo pedidos activos (en proceso y en camino)
-    @GetMapping("/activos")
-    public List<Pedido> obtenerPedidosPendientes() {
-        return pedidoRepo.findAll().stream()
-                .filter(p -> "pendiente".equals(p.getEstado()))
-                .collect(Collectors.toList());
-    }
-
-    // Endpoint para obtener pedidos exitosos
-    @GetMapping("/exitosos")
-    public List<Pedido> obtenerPedidosExitosos() {
-        return pedidoRepo.findAll().stream()
-                .filter(p -> "entregado con éxito".equals(p.getEstado()))
-                .collect(Collectors.toList());
-    }
-
-    // Endpoint para buscar pedidos
-    @GetMapping("/buscar")
-    public List<Pedido> buscarPedidos(@RequestParam String q) {
-        String termino = q.toLowerCase();
-        return pedidoRepo.findAll().stream()
-                .filter(p -> {
-                    // Buscar por ID
-                    boolean coincideId = p.getId().toString().contains(termino);
-
-                    // Buscar por cliente
-                    boolean coincideCliente = p.getCliente() != null &&
-                            p.getCliente().toLowerCase().contains(termino);
-
-                    // Buscar por productos
-                    boolean coincideProducto = p.getProductos() != null &&
-                            p.getProductos().stream()
-                                    .anyMatch(prod -> prod.getNombre().toLowerCase().contains(termino));
-
-                    return coincideId || coincideCliente || coincideProducto;
-                })
-                .collect(Collectors.toList());
-    }
-
+    // Crear pedido con productos
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Pedido pedido) {
-        List<Producto> productosFinales = new ArrayList<>();
-        List<String> noDisponibles = new ArrayList<>();
+    public ResponseEntity<?> crearPedido(@RequestBody Pedido pedido) {
 
-        for (Producto p : pedido.getProductos()) {
-            Producto productoExistente = productoRepo.findById(p.getId()).orElse(null);
+        // ✅ 1. Si el estado viene vacío o nulo, se asigna "en proceso"
+        if (pedido.getEstado() == null || pedido.getEstado().trim().isEmpty()) {
+            pedido.setEstado("en proceso");
+        }
 
-            if (productoExistente == null) {
-                noDisponibles.add("ID " + p.getId() + " (no existe)");
-            } else if (!productoExistente.getDisponible()) {
-                noDisponibles.add(productoExistente.getNombre());
-            } else {
-                productosFinales.add(productoExistente);
+        for (PedidoProducto pp : pedido.getPedidoProductos()) {
+            Producto producto = productoRepository.findById(pp.getProducto().getId())
+                    .orElse(null);
+
+            if (producto == null) {
+                return ResponseEntity.badRequest().body("Producto no encontrado");
             }
+
+            // ✅ 2. Validar cantidad mayor a 0
+            if (pp.getCantidad() <= 0) {
+                return ResponseEntity.badRequest().body("La cantidad debe ser mayor que 0 para el producto: " + producto.getNombre());
+            }
+
+            // ✅ 3. Verificar disponibilidad
+            if (!Boolean.TRUE.equals(producto.getDisponible())) {
+                return ResponseEntity.badRequest().body("El producto '" + producto.getNombre() + "' no está disponible");
+            }
+
+            // Asignar el producto completo y el pedido
+            pp.setProducto(producto);
+            pp.setPedido(pedido);
         }
 
-        if (!noDisponibles.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    "Los siguientes productos no están disponibles: " +
-                            String.join(", ", noDisponibles) +
-                            ". Por favor cámbialos o selecciona otros."
-            );
-        }
-
-        pedido.setProductos(productosFinales);
         pedido.setFecha(LocalDateTime.now());
-        pedido.setEstado("pendiente");
-        // comentario se queda null - lo agregará el cocinero después
+        Pedido nuevoPedido = pedidoRepository.save(pedido);
 
-        return ResponseEntity.ok(pedidoRepo.save(pedido));
+        // Recuperar pedido completo con productos
+        Pedido pedidoConProductos = pedidoRepository.findById(nuevoPedido.getId()).orElse(nuevoPedido);
+
+        return ResponseEntity.ok(pedidoConProductos);
     }
+
+    // Actualizar estado
+    private static final List<String> ESTADOS_VALIDOS = List.of("en proceso", "en camino", "entregado con éxito", "cancelado");
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedidoActualizado) {
-        Pedido pedido = pedidoRepo.findById(id).orElse(null);
-        if (pedido == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedidoDetails) {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow();
+
+        // Validar estado
+        if (pedidoDetails.getEstado() == null || !ESTADOS_VALIDOS.contains(pedidoDetails.getEstado().toLowerCase())) {
+            return ResponseEntity.badRequest().body("Estado inválido. Estados permitidos: " + ESTADOS_VALIDOS);
         }
 
-        pedido.setEstado(pedidoActualizado.getEstado());
-        pedido.setComentario(pedidoActualizado.getComentario());
+        pedido.setEstado(pedidoDetails.getEstado());
+        pedido.setComentario(pedidoDetails.getComentario());
 
-        return ResponseEntity.ok(pedidoRepo.save(pedido));
+        Pedido actualizado = pedidoRepository.save(pedido);
+        return ResponseEntity.ok(actualizado);
     }
 
-    // Endpoint para marcar un pedido como exitoso (opcional, para futuras mejoras)
-    @PostMapping("/{id}/marcar-exitoso")
-    public ResponseEntity<?> marcarComoExitoso(@PathVariable Long id) {
-        Pedido pedido = pedidoRepo.findById(id).orElse(null);
-        if (pedido == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        pedido.setEstado("entregado con éxito");
-        return ResponseEntity.ok(pedidoRepo.save(pedido));
+    // Eliminar pedido
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
+        pedidoRepository.deleteById(id);
+        return ResponseEntity.ok("Pedido eliminado correctamente");
     }
-
-    // Endpoint para obtener estadísticas básicas
-    @GetMapping("/estadisticas")
-    public ResponseEntity<Map<String, Object>> obtenerEstadisticas() {
-        List<Pedido> todosPedidos = pedidoRepo.findAll();
-
-        long enProceso = todosPedidos.stream()
-                .filter(p -> "en proceso".equals(p.getEstado()))
-                .count();
-
-        long enCamino = todosPedidos.stream()
-                .filter(p -> "en camino".equals(p.getEstado()))
-                .count();
-
-        long entregados = todosPedidos.stream()
-                .filter(p -> "entregado con éxito".equals(p.getEstado()))
-                .count();
-
-        Map<String, Object> estadisticas = new HashMap<>();
-        estadisticas.put("enProceso", enProceso);
-        estadisticas.put("enCamino", enCamino);
-        estadisticas.put("exitosos", entregados);
-
-        return ResponseEntity.ok(estadisticas);
-    }
-
 }
