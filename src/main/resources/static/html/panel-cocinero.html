@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Cocinero</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-utensils"></i> Panel del Cocinero</h1>
+        <p>Gestión simplificada de pedidos</p>
+    </div>
+
+    <!-- Barra de pestañas -->
+    <div class="control-panel">
+        <div class="control-header">
+            <div class="tabs">
+                <button class="tab active" onclick="cambiarTab('activos')">Pedidos Pendientes</button>
+                <button class="tab" onclick="cambiarTab('buscar')">Buscar por ID de pedido</button>
+                <button class="tab" onclick="cambiarTab('dashboard')">Dashboard</button>
+            </div>
+            <div id="search-container" class="search-container" style="display:none;">
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar pedidos...">
+                <button class="search-btn" onclick="buscarPedidos()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats">
+        <div class="stat-card" onclick="abrirDashboard('en proceso')">
+            <i class="fas fa-fire"></i>
+            <div class="stat-number" id="proceso">0</div>
+            <div class="stat-label">En Proceso</div>
+        </div>
+        <div class="stat-card" onclick="abrirDashboard('en camino')">
+            <i class="fas fa-truck"></i>
+            <div class="stat-number" id="camino">0</div>
+            <div class="stat-label">En Camino</div>
+        </div>
+        <div class="stat-card" onclick="abrirDashboard('entregado con éxito')">
+            <i class="fas fa-check-circle"></i>
+            <div class="stat-number" id="exitosos">0</div>
+            <div class="stat-label">Entregado con Éxito</div>
+        </div>
+    </div>
+
+    <!-- Contenido de pestañas -->
+    <div id="tab-activos" class="tab-content active">
+        <h2 class="section-title">Pedidos por Atender</h2>
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Cargando pedidos...</p>
+        </div>
+        <div class="pedidos-grid" id="pedidos-activos"></div>
+    </div>
+
+    <div id="tab-buscar" class="tab-content">
+        <h2 class="section-title">Buscar Pedidos</h2>
+        <div class="pedidos-grid" id="pedidos-busqueda"></div>
+        <div id="no-results" class="no-results" style="display:none;">
+            <i class="fas fa-search"></i>
+            <p>No se encontraron resultados</p>
+        </div>
+    </div>
+
+    <div id="tab-dashboard" class="tab-content">
+        <h2 class="section-title">Ventas Exitosas</h2>
+        <div class="dashboard-section">
+            <div class="dashboard-header">
+                <span class="dashboard-title">Resumen de ventas</span>
+                <span id="total-ventas" class="total-ventas">Total: 0</span>
+            </div>
+            <div class="ventas-grid" id="ventas-exitosas"></div>
+        </div>
+    </div>
+</div>
+
+<div class="notification" id="notification">
+    <span id="notification-text"></span>
+</div>
+
+<!-- Script externo -->
+<script src="/js/panel-cocinero.js"></script>
+</body>
+</html>
