@@ -45,6 +45,12 @@ body {
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: 150px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
 }
 
 .stat-card i {
@@ -192,6 +198,14 @@ body {
     border-left: 5px solid #28a745;
 }
 
+.pedido-card.entregado {
+    border-left: 5px solid #007bff;
+}
+
+.pedido-card.cancelado {
+    border-left: 5px solid #dc3545;
+}
+
 .pedido-card::before {
     content: '';
     position: absolute;
@@ -207,6 +221,14 @@ body {
 
 .pedido-card.camino::before {
     background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.pedido-card.entregado::before {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.pedido-card.cancelado::before {
+    background: linear-gradient(90deg, #dc3545, #c82333);
 }
 
 .pedido-header {
@@ -232,6 +254,14 @@ body {
 
 .camino .pedido-id {
     background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.entregado .pedido-id {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.cancelado .pedido-id {
+    background: linear-gradient(135deg, #dc3545, #c82333);
 }
 
 .tiempo-pedido {
@@ -297,7 +327,7 @@ body {
     font-size: 0.9rem;
 }
 
-.form-select {
+.form-select, .form-input {
     width: 100%;
     padding: 12px 15px;
     border: 2px solid #e9ecef;
@@ -305,26 +335,13 @@ body {
     font-size: 1rem;
     transition: all 0.3s ease;
     background: white;
+}
+
+.form-select {
     cursor: pointer;
 }
 
-.form-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.form-input:focus {
+.form-select:focus, .form-input:focus {
     outline: none;
     border-color: #007bff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
@@ -352,8 +369,10 @@ body {
     box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
 }
 
-.btn-actualizar:active {
-    transform: translateY(0);
+.btn-actualizar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .loading {
@@ -408,6 +427,7 @@ body {
     text-align: center;
     padding: 50px;
     color: white;
+    grid-column: 1 / -1;
 }
 
 .no-results i {
@@ -477,6 +497,31 @@ body {
     color: #28a745;
     font-weight: bold;
     font-size: 1.1rem;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.audio-notification {
+    display: none;
 }
 
 @media (max-width: 768px) {
