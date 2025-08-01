@@ -1,6 +1,6 @@
 package com.restaurante.botpedidos.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,7 +12,7 @@ public class PedidoProducto {
     private Long id;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonIgnore  // ✅ Cambié @JsonBackReference por @JsonIgnore
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
@@ -34,6 +34,7 @@ public class PedidoProducto {
 
     // Getters y Setters
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -23,51 +24,65 @@ public class PedidoController {
     @Autowired
     private ProductoRepository productoRepository;
 
-    // Listar todos los pedidos
     @GetMapping
     public List<Pedido> getAllPedidos() {
         return pedidoRepository.findAllPedidosDistinct();
     }
 
+    @GetMapping("/en-camino-entregados")
+    public List<Pedido> getPedidosEnCaminoYEntregados() {
+        return pedidoRepository.findPedidosEnCaminoYEntregados();
+    }
+
+    @GetMapping("/en-proceso")
+    public List<Pedido> getPedidosEnProceso() {
+        return pedidoRepository.findPedidosEnProceso();
+    }
+
     // Crear pedido con productos
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody Pedido pedido) {
+        // Validar productos
+        if (pedido.getPedidoProductos() == null || pedido.getPedidoProductos().isEmpty()) {
+            return ResponseEntity.badRequest().body("El pedido debe contener al menos un producto.");
+        }
 
-        // ✅ 1. Si el estado viene vacío o nulo, se asigna "en proceso"
-        if (pedido.getEstado() == null || pedido.getEstado().trim().isEmpty()) {
+        // Validar y cargar productos completos
+        for (PedidoProducto pp : pedido.getPedidoProductos()) {
+            if (pp.getCantidad() <= 0) {
+                return ResponseEntity.badRequest().body("La cantidad debe ser mayor que 0");
+            }
+
+            // Cargar el producto completo desde la base de datos
+            if (pp.getProducto() != null && pp.getProducto().getId() != null) {
+                Optional<Producto> productoCompleto = productoRepository.findById(pp.getProducto().getId());
+                if (productoCompleto.isEmpty()) {
+                    return ResponseEntity.badRequest().body("El producto con ID " + pp.getProducto().getId() + " no existe.");
+                }
+
+                // Verificar que el producto está disponible
+                if (!productoCompleto.get().isDisponible()) {
+                    return ResponseEntity.badRequest().body("El producto " + productoCompleto.get().getNombre() + " no está disponible.");
+                }
+
+                // Asignar el producto completo con todos sus datos
+                pp.setProducto(productoCompleto.get());
+            }
+        }
+
+        // Asignar fecha y estado inicial
+        pedido.setFecha(LocalDateTime.now());
+        if (pedido.getEstado() == null || pedido.getEstado().isEmpty()) {
             pedido.setEstado("en proceso");
         }
 
+        // Establecer la relación bidireccional
         for (PedidoProducto pp : pedido.getPedidoProductos()) {
-            Producto producto = productoRepository.findById(pp.getProducto().getId())
-                    .orElse(null);
-
-            if (producto == null) {
-                return ResponseEntity.badRequest().body("Producto no encontrado");
-            }
-
-            // ✅ 2. Validar cantidad mayor a 0
-            if (pp.getCantidad() <= 0) {
-                return ResponseEntity.badRequest().body("La cantidad debe ser mayor que 0 para el producto: " + producto.getNombre());
-            }
-
-            // ✅ 3. Verificar disponibilidad
-            if (!Boolean.TRUE.equals(producto.getDisponible())) {
-                return ResponseEntity.badRequest().body("El producto '" + producto.getNombre() + "' no está disponible");
-            }
-
-            // Asignar el producto completo y el pedido
-            pp.setProducto(producto);
             pp.setPedido(pedido);
         }
 
-        pedido.setFecha(LocalDateTime.now());
-        Pedido nuevoPedido = pedidoRepository.save(pedido);
-
-        // Recuperar pedido completo con productos
-        Pedido pedidoConProductos = pedidoRepository.findById(nuevoPedido.getId()).orElse(nuevoPedido);
-
-        return ResponseEntity.ok(pedidoConProductos);
+        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        return ResponseEntity.ok(pedidoGuardado);
     }
 
     // Actualizar estado
@@ -75,7 +90,13 @@ public class PedidoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedidoDetails) {
-        Pedido pedido = pedidoRepository.findById(id).orElseThrow();
+        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
+
+        if (pedidoOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Pedido pedido = pedidoOpt.get();
 
         // Validar estado
         if (pedidoDetails.getEstado() == null || !ESTADOS_VALIDOS.contains(pedidoDetails.getEstado().toLowerCase())) {
@@ -92,6 +113,12 @@ public class PedidoController {
     // Eliminar pedido
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
+        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
+
+        if (pedidoOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
         pedidoRepository.deleteById(id);
         return ResponseEntity.ok("Pedido eliminado correctamente");
     }

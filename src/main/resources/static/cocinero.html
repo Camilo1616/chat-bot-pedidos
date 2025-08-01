@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Cocina</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="../css/tablas.css">
+    <link rel="stylesheet" href="../css/botones.css">
+</head>
+<body>
+<h1>👨‍🍳 Pedidos en Cocina</h1>
+
+<div style="margin-bottom: 15px;">
+    <button class="btn btn-primario" onclick="window.location.href='../index.html'">🏠 Volver</button>
+    <button class="btn btn-exito" onclick="cargarPedidosEnProceso()">📋 En Proceso</button>
+    <button class="btn btn-azul" onclick="cargarPedidosEnCaminoYEntregados()">🚚 En Camino / Entregados</button>
+</div>
+
+<table id="tablaCocinero">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Estado</th>
+        <th>Actualizar Estado</th>
+        <th>Comentario (si cancelado)</th>
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Se llena dinámicamente -->
+    </tbody>
+</table>
+
+<a href="../index.html" class="btn-panel-general">🏠</a>
+
+<script src="js/cocinero.js"></script>
+</body>
+</html>

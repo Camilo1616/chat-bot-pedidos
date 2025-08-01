@@ -1,0 +1,46 @@
+button, .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: background 0.3s ease, transform 0.2s ease;
+    color: white;
+}
+
+/* Botón primario */
+.btn-primario {
+    background-color: var(--color-primario);
+}
+.btn-primario:hover {
+    background-color: var(--color-primario-hover);
+    transform: scale(1.05);
+}
+
+/* Botón de éxito */
+.btn-exito {
+    background-color: var(--color-exito);
+}
+.btn-exito:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Botón de peligro */
+.btn-peligro {
+    background-color: var(--color-peligro);
+}
+.btn-peligro:hover {
+    background-color: #b52b3b;
+    transform: scale(1.05);
+}
+
+/* Botón secundario */
+.btn-secundario {
+    background-color: var(--color-secundario);
+}
+.btn-secundario:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
+}

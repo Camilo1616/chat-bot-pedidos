@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal - Restaurante</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/componente/botones.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #f8f8f8;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .menu-btn {
+            width: 220px;
+            height: 120px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #2d89ef;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            transition: 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            background: #1d5fa7;
+            transform: scale(1.05);
+        }
+
+        .menu-btn.ventas { background: #28a745; }
+        .menu-btn.ventas:hover { background: #1c7430; }
+
+        .menu-btn.general { background: #ffc107; color: #333; }
+        .menu-btn.general:hover { background: #d39e00; }
+    </style>
+</head>
+<body>
+
+<h1>🍽 Sistema de Pedidos - Restaurante</h1>
+
+<div class="menu-container">
+    <button class="menu-btn" onclick="location.href='cocinero.html'">👨‍🍳 Panel de Cocina</button>
+    <button class="menu-btn ventas" onclick="location.href='ventas.html'">📊 Reporte de Ventas</button>
+    <button class="menu-btn productos" onclick="location.href='productos.html'">🛒 Gestión de Productos</button>
+</div>
+
+
+
+</body>
+</html>

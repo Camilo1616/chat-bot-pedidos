@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas</title>
+    <!-- Rutas corregidas para CSS -->
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/tablas.css">
+    <link rel="stylesheet" href="css/botones.css">
+    <!-- CSS adicional para mejorar la presentación -->
+    <style>
+        .btn-azul {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .btn-azul:hover {
+            background-color: #138496;
+            transform: scale(1.05);
+        }
+
+        .toast {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos para las tablas */
+        table {
+            font-size: 14px;
+        }
+
+        .loading-row {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<h1>📊 Reporte de Ventas</h1>
+
+<div style="margin-bottom: 15px; text-align: center;">
+    <button class="btn btn-primario" onclick="window.location.href='index.html'">🏠 Volver</button>
+    <button class="btn btn-exito" onclick="cargarVentas()">🔄 Actualizar Datos</button>
+    <button class="btn btn-secundario" onclick="borrarReporte()">🗑️ Limpiar</button>
+    <button class="btn btn-azul" onclick="exportarExcel()">📄 Exportar CSV</button>
+</div>
+
+<!-- Nueva sección para consulta por fechas -->
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+    <h3>📅 Consultar Ventas por Fechas</h3>
+    <label>Fecha Inicio:</label>
+    <input type="datetime-local" id="fechaInicio" style="margin: 5px;">
+    <label>Fecha Fin:</label>
+    <input type="datetime-local" id="fechaFin" style="margin: 5px;">
+    <button class="btn btn-exito" onclick="consultarVentasPorFecha()">🔍 Consultar</button>
+</div>
+
+<!-- El total de ventas se insertará dinámicamente aquí -->
+
+<section>
+    <h2>🏆 Productos Más Vendidos</h2>
+    <table id="tablaExitosas">
+        <thead>
+        <tr>
+            <th>Ranking</th>
+            <th>Producto</th>
+            <th>Cantidad Vendida</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="loading-row">
+            <td colspan="3" style="text-align: center; color: #666;">
+                🔄 Cargando datos...
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<section style="margin-top: 30px;">
+    <h2>❌ Pedidos Fallidos</h2>
+    <table id="tablaFallidas">
+        <thead>
+        <tr>
+            <th>ID Pedido</th>
+            <th>Cliente</th>
+            <th>Motivo del Fallo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="loading-row">
+            <td colspan="3" style="text-align: center; color: #666;">
+                🔄 Cargando datos...
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<a href="index.html" class="btn-panel-general">🏠</a>
+
+<script src="js/ventas.js"></script>
+</body>
+</html>

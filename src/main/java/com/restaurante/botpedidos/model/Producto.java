@@ -19,16 +19,16 @@ public class Producto {
     @Column(nullable = false)
     private Boolean disponible;
 
-    public boolean isDisponible() { return disponible; }
-    public void setDisponible(boolean disponible) { this.disponible = disponible; }
+    // Constructor vacío
+    public Producto() {}
 
-    public Boolean getDisponible() {
-        return disponible;
-    }
-
-    public void setDisponible(Boolean disponible) {
+    // Constructor con parámetros
+    public Producto(String nombre, Double precio, Boolean disponible) {
+        this.nombre = nombre;
+        this.precio = precio;
         this.disponible = disponible;
     }
+
     // Getters y Setters
     public Long getId() {
         return id;
@@ -52,5 +52,18 @@ public class Producto {
 
     public void setPrecio(Double precio) {
         this.precio = precio;
+    }
+
+    public Boolean getDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(Boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    // Método de conveniencia para verificar disponibilidad
+    public boolean isDisponible() {
+        return disponible != null && disponible;
     }
 }

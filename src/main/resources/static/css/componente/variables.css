@@ -1,0 +1,14 @@
+:root {
+    --color-primario: #007bff;
+    --color-primario-hover: #0056b3;
+    --color-secundario: #6c757d;
+    --color-exito: #28a745;
+    --color-peligro: #dc3545;
+    --color-fondo: #f8f9fa;
+    --color-texto: #333;
+    --color-tabla-hover: #dce7f7;
+
+    --fuente-principal: 'Segoe UI', Tahoma, sans-serif;
+    --radio-borde: 8px;
+    --sombra: 0 2px 6px rgba(0, 0, 0, 0.1);
+}

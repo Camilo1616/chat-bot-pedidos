@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="../css/tablas.css">
+    <link rel="stylesheet" href="../css/botones.css">
+</head>
+<body>
+<h1>🛒 Administración de Productos</h1>
+
+<div style="margin-bottom: 15px;">
+    <button class="btn btn-primario" onclick="window.location.href='../index.html'">🏠 Volver</button>
+</div>
+
+<section class="form-producto">
+    <h2>➕ Agregar / Editar Producto</h2>
+    <input type="hidden" id="productoId">
+    <label>Nombre:</label>
+    <input type="text" id="nombre">
+    <label>Precio:</label>
+    <input type="number" id="precio">
+    <button class="btn btn-exito" onclick="guardarProducto()">💾 Guardar</button>
+</section>
+
+<section style="margin-top: 20px;">
+    <h2>📋 Lista de Productos</h2>
+    <table id="tablaProductos">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Disponibilidad</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Se llena dinámicamente -->
+        </tbody>
+    </table>
+</section>
+
+<a href="index.html" class="btn-panel-general">🏠</a>
+
+<script src="/js/productos.js"></script>
+</body>
+</html>

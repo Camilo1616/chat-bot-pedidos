@@ -1,8 +1,8 @@
 package com.restaurante.botpedidos.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,14 +23,14 @@ public class Pedido {
 
     private String comentario;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<PedidoProducto> pedidoProductos;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<PedidoProducto> pedidoProductos = new ArrayList<>();
 
-    // ✅ Constructor vacío (obligatorio para JPA)
+    // Constructor vacío (obligatorio para JPA)
     public Pedido() {
     }
 
-    // ✅ Constructor con parámetros
+    // Constructor con parámetros
     public Pedido(Long id, String cliente, String estado, LocalDateTime fecha, String comentario, List<PedidoProducto> pedidoProductos) {
         this.id = id;
         this.cliente = cliente;
@@ -40,22 +40,58 @@ public class Pedido {
         this.pedidoProductos = pedidoProductos;
     }
 
-    // ✅ Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Getters y Setters
+    public Long getId() {
+        return id;
+    }
 
-    public String getCliente() { return cliente; }
-    public void setCliente(String cliente) { this.cliente = cliente; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public String getCliente() {
+        return cliente;
+    }
 
-    public LocalDateTime getFecha() { return fecha; }
-    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
+    }
 
-    public String getComentario() { return comentario; }
-    public void setComentario(String comentario) { this.comentario = comentario; }
+    public String getEstado() {
+        return estado;
+    }
 
-    public List<PedidoProducto> getPedidoProductos() { return pedidoProductos; }
-    public void setPedidoProductos(List<PedidoProducto> pedidoProductos) { this.pedidoProductos = pedidoProductos; }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
+    }
+
+    public List<PedidoProducto> getPedidoProductos() {
+        return pedidoProductos;
+    }
+
+    public void setPedidoProductos(List<PedidoProducto> pedidoProductos) {
+        this.pedidoProductos = pedidoProductos;
+        // Establecer la relación bidireccional
+        if (pedidoProductos != null) {
+            for (PedidoProducto pp : pedidoProductos) {
+                pp.setPedido(this);
+            }
+        }
+    }
 }
